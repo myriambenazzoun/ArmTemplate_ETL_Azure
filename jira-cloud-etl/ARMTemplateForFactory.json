@@ -41,12 +41,12 @@
         },
         "JiraBaseAPI_properties_typeProperties_url": {
             "type": "string",
-            "defaultValue": "https://spectrumgroupe-team-dlggvk9h.atlassian.net/",
+            "defaultValue": "your jira url",
             "metadata": "Jira API base URL"
         },
         "JiraBaseAPI_properties_typeProperties_userName": {
             "type": "string",
-            "defaultValue": "myriam.benazzoun@spectrumgroupe.fr",
+            "defaultValue": "your email",
             "metadata": "Jira API username"
         },
         "schemaName": {
