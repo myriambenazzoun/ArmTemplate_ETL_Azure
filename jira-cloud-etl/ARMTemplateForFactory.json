@@ -55,12 +55,12 @@
         },
         "sprintApiEndpoint": {
             "type": "string",
-            "defaultValue": "/rest/agile/1.0/board/@{dataset().boardId}/sprint",
+            "defaultValue": "[concat(parameters('JiraBaseAPI_properties_typeProperties_url'), '/rest/agile/1.0/board/@{dataset().boardId}/sprint')]",
             "metadata": "Jira Sprint API endpoint"
         },
         "issueApiEndpoint": {
             "type": "string",
-            "defaultValue": "/rest/agile/1.0/board/@{dataset().boardId}/issue",
+            "defaultValue": "[concat(parameters('JiraBaseAPI_properties_typeProperties_url'), '/rest/agile/1.0/board/@{dataset().boardId}/issue')]",
             "metadata": "Jira Issue API endpoint"
         },
         "location": {
@@ -959,7 +959,7 @@
                 "annotations": [],
                 "type": "RestResource",
                 "typeProperties": {
-                    "relativeUrl": "[parameters('boardApiEndpoint')]"
+                    "relativeUrl": "[concat(parameters('JiraBaseAPI_properties_typeProperties_url'), '/rest/agile/1.0/board')]"
                 },
                 "schema": []
             },
