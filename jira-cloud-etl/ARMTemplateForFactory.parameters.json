@@ -31,6 +31,14 @@
         },
         "JiraBaseAPI_properties_typeProperties_userName": {
             "value": "myriam.benazzoun@spectrumgroupe.fr"
+        }, "boardApiEndpoint": {
+            "value": "/rest/agile/1.0/board"
+        },
+        "sprintApiEndpoint": {
+            "value": "/rest/agile/1.0/board/@{dataset().boardId}/sprint"
+        },
+        "issueApiEndpoint": {
+            "value": "/rest/agile/1.0/board/@{dataset().boardId}/issue"
         },
         "schemaName": {
             "value": "dbo"
