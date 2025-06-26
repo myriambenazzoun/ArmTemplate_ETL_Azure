@@ -1,0 +1,2173 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "resourceGroupName": {
+            "type": "string",
+            "defaultValue": "jiraCloudResourceGroup",
+            "metadata": "Name of the resource group"
+        },
+        "factoryName": {
+            "type": "string",
+            "defaultValue": "jiraCloudEtl",
+            "metadata": "Data factory name"
+        },
+        "sqlServerName": {
+            "type": "string",
+            "defaultValue": "jiracloudsqlserver",
+            "metadata": "SQL Server name"
+        },
+        "sqlDatabaseName": {
+            "type": "string",
+            "defaultValue": "JIRA_DB",
+            "metadata": "SQL Database name"
+        },
+        "sqlAdminLogin": {
+            "type": "string",
+            "defaultValue": "JiraCloudServer",
+            "metadata": "SQL Server administrator login"
+        },
+        "sqlAdminPassword": {
+            "type": "secureString",
+            "metadata": "SQL Server administrator password"
+        },
+        "vulnerabilityAssessments_Default_storageContainerPath": {
+            "type": "secureString",
+            "metadata": "Storage container path for vulnerability assessments"
+        },
+        "JiraBaseAPI_password": {
+            "type": "secureString",
+            "metadata": "Secure string for JiraBaseAPI password"
+        },
+        "JiraBaseAPI_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://spectrumgroupe-team-dlggvk9h.atlassian.net/",
+            "metadata": "Jira API base URL"
+        },
+        "JiraBaseAPI_properties_typeProperties_userName": {
+            "type": "string",
+            "defaultValue": "myriam.benazzoun@spectrumgroupe.fr",
+            "metadata": "Jira API username"
+        },
+        "schemaName": {
+            "type": "string",
+            "defaultValue": "dbo",
+            "metadata": "Database schema name"
+        },
+        "boardApiEndpoint": {
+            "type": "string",
+            "defaultValue": "/rest/agile/1.0/board",
+            "metadata": "Jira Board API endpoint"
+        },
+        "sprintApiEndpoint": {
+            "type": "string",
+            "defaultValue": "/rest/agile/1.0/board/@{dataset().boardId}/sprint",
+            "metadata": "Jira Sprint API endpoint"
+        },
+        "issueApiEndpoint": {
+            "type": "string",
+            "defaultValue": "/rest/agile/1.0/board/@{dataset().boardId}/issue",
+            "metadata": "Jira Issue API endpoint"
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "southafricanorth",
+            "metadata": "Azure region for resources"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]",
+        "sqlServerId": "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'))]",
+        "sqlDatabaseId": "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'), '/databases/', parameters('sqlDatabaseName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2021-04-01",
+            "name": "[parameters('resourceGroupName')]",
+            "location": "[parameters('location')]",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.DataFactory/factories",
+            "apiVersion": "2018-06-01",
+            "name": "[parameters('factoryName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]"
+            ],
+            "properties": {
+                "publicNetworkAccess": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[parameters('sqlServerName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]"
+            ],
+            "kind": "v12.0",
+            "properties": {
+                "administratorLogin": "[parameters('sqlAdminLogin')]",
+                "administratorLoginPassword": "[parameters('sqlAdminPassword')]",
+                "version": "12.0",
+                "minimalTlsVersion": "1.2",
+                "publicNetworkAccess": "Enabled",
+                "restrictOutboundNetworkAccess": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advancedThreatProtectionSettings",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('sqlServerName'), '/CreateIndex')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('sqlServerName'), '/DbParameterization')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('sqlServerName'), '/DefragmentIndex')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('sqlServerName'), '/DropIndex')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('sqlServerName'), '/ForceLastGoodPlan')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/auditingPolicies",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('sqlServerName'), '/Default')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "auditingState": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/auditingSettings",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "retentionDays": 0,
+                "auditActionsAndGroups": [],
+                "isStorageSecondaryKeyInUse": false,
+                "isAzureMonitorTargetEnabled": false,
+                "isManagedIdentityInUse": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/connectionPolicies",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/default')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "connectionType": "Default"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/', parameters('sqlDatabaseName'))]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "sku": {
+                "name": "GP_S_Gen5",
+                "tier": "GeneralPurpose",
+                "family": "Gen5",
+                "capacity": 1
+            },
+            "kind": "v12.0,user,vcore,serverless",
+            "properties": {
+                "collation": "SQL_Latin1_General_CP1_CI_AS",
+                "maxSizeBytes": 34359738368,
+                "catalogCollation": "SQL_Latin1_General_CP1_CI_AS",
+                "zoneRedundant": false,
+                "readScale": "Disabled",
+                "autoPauseDelay": 60,
+                "requestedBackupStorageRedundancy": "Geo",
+                "minCapacity": 0.5,
+                "maintenanceConfigurationId": "/subscriptions/897dd209-8969-4ede-98b0-f00cc90f4da8/providers/Microsoft.Maintenance/publicMaintenanceConfigurations/SQL_Default",
+                "isLedgerOn": false,
+                "availabilityZone": "NoPreference"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/advancedThreatProtectionSettings",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/auditingPolicies",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('sqlServerName'), '/master/Default')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "auditingState": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/auditingSettings",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "retentionDays": 0,
+                "isAzureMonitorTargetEnabled": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/extendedAuditingSettings",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "retentionDays": 0,
+                "isAzureMonitorTargetEnabled": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/geoBackupPolicies",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/ledgerDigestUploads",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/master/Current')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/securityAlertPolicies",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "state": "Disabled",
+                "disabledAlerts": [""],
+                "emailAddresses": [""],
+                "emailAccountAdmins": false,
+                "retentionDays": 0
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/master/Current')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/vulnerabilityAssessments",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "recurringScans": {
+                    "isEnabled": false,
+                    "emailSubscriptionAdmins": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/devOpsAuditingSettings",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "isAzureMonitorTargetEnabled": false,
+                "isManagedIdentityInUse": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/encryptionProtector",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/current')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "kind": "servicemanaged",
+            "properties": {
+                "serverKeyName": "ServiceManaged",
+                "serverKeyType": "ServiceManaged",
+                "autoRotationEnabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/extendedAuditingSettings",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "retentionDays": 0,
+                "auditActionsAndGroups": [],
+                "isStorageSecondaryKeyInUse": false,
+                "isAzureMonitorTargetEnabled": false,
+                "isManagedIdentityInUse": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/firewallRules",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/AllowAllWindowsAzureIps')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "startIpAddress": "0.0.0.0",
+                "endIpAddress": "0.0.0.0"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/firewallRules",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/ClientIPAddress_2025-6-13_15-51-17')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "startIpAddress": "197.15.250.2",
+                "endIpAddress": "197.15.250.2"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/keys",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/ServiceManaged')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "kind": "servicemanaged",
+            "properties": {
+                "serverKeyType": "ServiceManaged"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/securityAlertPolicies",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "state": "Disabled",
+                "disabledAlerts": [""],
+                "emailAddresses": [""],
+                "emailAccountAdmins": false,
+                "retentionDays": 0
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/sqlVulnerabilityAssessments",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/vulnerabilityAssessments",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+            ],
+            "properties": {
+                "recurringScans": {
+                    "isEnabled": false,
+                    "emailSubscriptionAdmins": true
+                },
+                "storageContainerPath": "[parameters('vulnerabilityAssessments_Default_storageContainerPath')]"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/advancedThreatProtectionSettings",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/', parameters('sqlDatabaseName'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('sqlServerName'), parameters('sqlDatabaseName'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/auditingPolicies",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('sqlServerName'), '/', parameters('sqlDatabaseName'), '/Default')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('sqlServerName'), parameters('sqlDatabaseName'))]"
+            ],
+            "properties": {
+                "auditingState": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/auditingSettings",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/', parameters('sqlDatabaseName'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('sqlServerName'), parameters('sqlDatabaseName'))]"
+            ],
+            "properties": {
+                "retentionDays": 0,
+                "isAzureMonitorTargetEnabled": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/backupLongTermRetentionPolicies",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/', parameters('sqlDatabaseName'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('sqlServerName'), parameters('sqlDatabaseName'))]"
+            ],
+            "properties": {
+                "weeklyRetention": "PT0S",
+                "monthlyRetention": "PT0S",
+                "yearlyRetention": "PT0S",
+                "weekOfYear": 0
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/backupShortTermRetentionPolicies",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/', parameters('sqlDatabaseName'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('sqlServerName'), parameters('sqlDatabaseName'))]"
+            ],
+            "properties": {
+                "retentionDays": 7,
+                "diffBackupIntervalInHours": 12
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/extendedAuditingSettings",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/', parameters('sqlDatabaseName'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('sqlServerName'), parameters('sqlDatabaseName'))]"
+            ],
+            "properties": {
+                "retentionDays": 0,
+                "isAzureMonitorTargetEnabled": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/geoBackupPolicies",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/', parameters('sqlDatabaseName'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('sqlServerName'), parameters('sqlDatabaseName'))]"
+            ],
+            "properties": {
+                "state": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/ledgerDigestUploads",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/', parameters('sqlDatabaseName'), '/Current')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('sqlServerName'), parameters('sqlDatabaseName'))]"
+            ],
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/securityAlertPolicies",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/', parameters('sqlDatabaseName'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('sqlServerName'), parameters('sqlDatabaseName'))]"
+            ],
+            "properties": {
+                "state": "Disabled",
+                "disabledAlerts": [""],
+                "emailAddresses": [""],
+                "emailAccountAdmins": false,
+                "retentionDays": 0
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/', parameters('sqlDatabaseName'), '/Current')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('sqlServerName'), parameters('sqlDatabaseName'))]"
+            ],
+            "properties": {
+                "state": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/vulnerabilityAssessments",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/', parameters('sqlDatabaseName'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('sqlServerName'), parameters('sqlDatabaseName'))]"
+            ],
+            "properties": {
+                "recurringScans": {
+                    "isEnabled": false,
+                    "emailSubscriptionAdmins": true
+                }
+            }
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ETL_Pipeline')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "runtimeState": "Stopped",
+                "pipelines": [
+                    {
+                        "pipelineReference": {
+                            "referenceName": "ETL_Pipeline",
+                            "type": "PipelineReference"
+                        },
+                        "parameters": {}
+                    }
+                ],
+                "type": "ScheduleTrigger",
+                "typeProperties": {
+                    "recurrence": {
+                        "frequency": "Day",
+                        "interval": 1,
+                        "startTime": "2025-06-11T15:00:00",
+                        "timeZone": "W. Central Africa Standard Time",
+                        "schedule": {}
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/ETL_Pipeline')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/IssueType_API')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "JiraBaseAPI",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "API REST"
+                },
+                "annotations": [],
+                "type": "RestResource",
+                "typeProperties": {
+                    "relativeUrl": "/rest/api/2/issuetype"
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/JiraBaseAPI')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Status_API')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "JiraBaseAPI",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "API REST"
+                },
+                "annotations": [],
+                "type": "RestResource",
+                "typeProperties": {
+                    "relativeUrl": "/rest/api/2/status"
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/JiraBaseAPI')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/date_Dim')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "Jira_DB",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "SQL_Tables/Dimensions"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "date_id",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "date",
+                        "type": "date"
+                    },
+                    {
+                        "name": "year",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "month",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "quarter",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "day",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "weekday",
+                        "type": "nvarchar"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "[parameters('schemaName')]",
+                    "table": "date_dim"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Board_Dim')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "Jira_DB",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "SQL_Tables/Dimensions"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "board_id_PK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "board_name",
+                        "type": "nvarchar"
+                    },
+                    {
+                        "name": "type",
+                        "type": "nvarchar"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "[parameters('schemaName')]",
+                    "table": "Board_dim"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Priority_Dim')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "Jira_DB",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "SQL_Tables/Dimensions"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "priority_id_PK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "priority_name",
+                        "type": "nvarchar"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "[parameters('schemaName')]",
+                    "table": "Priority_dim"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Issue_Dim')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "Jira_DB",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "SQL_Tables/Dimensions"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "issue_id_PK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "Agg_Progress",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "Agg_Progress_Total",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "Agg_TimeSpent",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "Agg_TimeEstimate",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "creation_date",
+                        "type": "date"
+                    },
+                    {
+                        "name": "resolution_date",
+                        "type": "date"
+                    },
+                    {
+                        "name": "due_date",
+                        "type": "date"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "[parameters('schemaName')]",
+                    "table": "Issue_dim"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Time_Dim')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "Jira_DB",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "SQL_Tables/Dimensions"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "time_id",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "time",
+                        "type": "nvarchar"
+                    },
+                    {
+                        "name": "hour",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "minute",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "second",
+                        "type": "int",
+                        "precision": 10
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "[parameters('schemaName')]",
+                    "table": "time_dim"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Board_API')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "JiraBaseAPI",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "API REST"
+                },
+                "annotations": [],
+                "type": "RestResource",
+                "typeProperties": {
+                    "relativeUrl": "[parameters('boardApiEndpoint')]"
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/JiraBaseAPI')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Worklog_Fact')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "Jira_DB",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "SQL_Tables/FactTables"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "issue_id_FK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "worklog_id_FK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "author_id_FK",
+                        "type": "nvarchar"
+                    },
+                    {
+                        "name": "startTime_FK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "startDate_FK",
+                        "type": "int",
+                        "precision": 10
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "[parameters('schemaName')]",
+                    "table": "worklog_fact"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ProjectDetail_API')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "JiraBaseAPI",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "project_id": {
+                        "type": "string",
+                        "defaultValue": "10000"
+                    }
+                },
+                "folder": {
+                    "name": "API REST"
+                },
+                "annotations": [],
+                "type": "RestResource",
+                "typeProperties": {
+                    "relativeUrl": {
+                        "value": "/rest/api/2/project/@{dataset().project_id}",
+                        "type": "Expression"
+                    }
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/JiraBaseAPI')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Sprint_Fact')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "Jira_DB",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "SQL_Tables/FactTables"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "sprint_id_FK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "board_id_FK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "complete_date_FK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "start_date_FK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "end_date_FK",
+                        "type": "int",
+                        "precision": 10
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "[parameters('schemaName')]",
+                    "table": "sprint_fact"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Issue_Fact')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "Jira_DB",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "SQL_Tables/FactTables"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "issue_id_FK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "project_id_FK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "issueType_id_FK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "issueStatus_id_FK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "priority_id_FK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "creator_id_FK",
+                        "type": "nvarchar"
+                    },
+                    {
+                        "name": "creation_date_FK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "resolution_date_FK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "due_date_FK",
+                        "type": "int",
+                        "precision": 10
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "[parameters('schemaName')]",
+                    "table": "issue_fact"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Sprint_Dim')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "Jira_DB",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "SQL_Tables/Dimensions"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "sprint_id_PK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "sprint_name",
+                        "type": "nvarchar"
+                    },
+                    {
+                        "name": "start_date",
+                        "type": "date"
+                    },
+                    {
+                        "name": "end_date",
+                        "type": "date"
+                    },
+                    {
+                        "name": "complete_date",
+                        "type": "date"
+                    },
+                    {
+                        "name": "state",
+                        "type": "nvarchar"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "[parameters('schemaName')]",
+                    "table": "sprint_dim"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Sprint_API')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "JiraBaseAPI",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "boardId": {
+                        "type": "string",
+                        "defaultValue": "5"
+                    }
+                },
+                "folder": {
+                    "name": "API REST"
+                },
+                "annotations": [],
+                "type": "RestResource",
+                "typeProperties": {
+                    "relativeUrl": {
+                        "value": "[parameters('sprintApiEndpoint')]",
+                        "type": "Expression"
+                    }
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/JiraBaseAPI')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/IssueStatus_Dim')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "Jira_DB",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "SQL_Tables/Dimensions"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "status_id_PK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "status_name",
+                        "type": "nvarchar"
+                    },
+                    {
+                        "name": "statusCategory",
+                        "type": "nvarchar"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "[parameters('schemaName')]",
+                    "table": "issueStatus_dim"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Worklog_Dim')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "Jira_DB",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "SQL_Tables/Dimensions"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "worklog_id_PK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "start_date",
+                        "type": "date"
+                    },
+                    {
+                        "name": "start_time",
+                        "type": "nvarchar"
+                    },
+                    {
+                        "name": "timespent",
+                        "type": "int",
+                        "precision": 10
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "[parameters('schemaName')]",
+                    "table": "worklog_dim"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/IssueType_Dim')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "Jira_DB",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "SQL_Tables/Dimensions"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "type_id_PK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "type_name",
+                        "type": "nvarchar"
+                    },
+                    {
+                        "name": "subtask",
+                        "type": "nvarchar"
+                    },
+                    {
+                        "name": "hierarchyLevel",
+                        "type": "int",
+                        "precision": 10
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "[parameters('schemaName')]",
+                    "table": "IssueType_dim"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Issue_API')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "JiraBaseAPI",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "boardId": {
+                        "type": "string",
+                        "defaultValue": "5"
+                    }
+                },
+                "folder": {
+                    "name": "API REST"
+                },
+                "annotations": [],
+                "type": "RestResource",
+                "typeProperties": {
+                    "relativeUrl": {
+                        "value": "[parameters('issueApiEndpoint')]",
+                        "type": "Expression"
+                    }
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/JiraBaseAPI')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Project_API')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "JiraBaseAPI",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "boardId": {
+                        "type": "string",
+                        "defaultValue": "5"
+                    }
+                },
+                "folder": {
+                    "name": "API REST"
+                },
+                "annotations": [],
+                "type": "RestResource",
+                "typeProperties": {
+                    "relativeUrl": {
+                        "value": "/rest/agile/1.0/board/@{dataset().boardId}/project",
+                        "type": "Expression"
+                    }
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/JiraBaseAPI')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/IssueDetail_API')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "JiraBaseAPI",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "id": {
+                        "type": "String"
+                    }
+                },
+                "folder": {
+                    "name": "API REST"
+                },
+                "annotations": [],
+                "type": "RestResource",
+                "typeProperties": {
+                    "relativeUrl": {
+                        "value": "/rest/api/2/issue/@{dataset().id}",
+                        "type": "Expression"
+                    }
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/JiraBaseAPI')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Worklog_API')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "JiraBaseAPI",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "id": {
+                        "type": "string",
+                        "defaultValue": "10000"
+                    }
+                },
+                "folder": {
+                    "name": "API REST"
+                },
+                "annotations": [],
+                "type": "RestResource",
+                "typeProperties": {
+                    "relativeUrl": {
+                        "value": "/rest/api/2/issue/@{dataset().id}/worklog",
+                        "type": "Expression"
+                    }
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/JiraBaseAPI')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Priority_API')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "JiraBaseAPI",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "API REST"
+                },
+                "annotations": [],
+                "type": "RestResource",
+                "typeProperties": {
+                    "relativeUrl": "/rest/api/2/priority"
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/JiraBaseAPI')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Project_dim')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "Jira_DB",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "SQL_Tables/Dimensions"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "project_id_PK",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "project_name",
+                        "type": "nvarchar"
+                    },
+                    {
+                        "name": "project_typeKey",
+                        "type": "nvarchar"
+                    },
+                    {
+                        "name": "project_key",
+                        "type": "nvarchar"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "[parameters('schemaName')]",
+                    "table": "project_dim"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/User_Dim')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "Jira_DB",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "SQL_Tables/Dimensions"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "user_id_PK",
+                        "type": "nvarchar"
+                    },
+                    {
+                        "name": "display_name",
+                        "type": "nvarchar"
+                    },
+                    {
+                        "name": "accountType",
+                        "type": "nvarchar"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "[parameters('schemaName')]",
+                    "table": "User_dim"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/JiraBaseAPI')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "RestService",
+                "typeProperties": {
+                    "url": "[parameters('JiraBaseAPI_properties_typeProperties_url')]",
+                    "enableServerCertificateValidation": true,
+                    "authenticationType": "Basic",
+                    "userName": "[parameters('JiraBaseAPI_properties_typeProperties_userName')]",
+                    "password": {
+                        "type": "SecureString",
+                        "value": "[parameters('JiraBaseAPI_password')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Jira_DB')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureSqlDatabase",
+                "typeProperties": {
+                    "server": "[concat(parameters('sqlServerName'), '.database.windows.net')]",
+                    "database": "[parameters('sqlDatabaseName')]",
+                    "encrypt": "mandatory",
+                    "trustServerCertificate": false,
+                    "authenticationType": "SQL",
+                    "userName": "[parameters('sqlAdminLogin')]",
+                    "password": {
+                        "type": "SecureString",
+                        "value": "[parameters('sqlAdminPassword')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]",
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('sqlServerName'), parameters('sqlDatabaseName'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ETL_Pipeline')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Board_DF",
+                        "type": "ExecuteDataFlow",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "Board_DF",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "extractBoardData": {},
+                                    "source1": {},
+                                    "sink1": {},
+                                    "chargerBoardDim": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    },
+                    {
+                        "name": "IssueType_DF",
+                        "type": "ExecuteDataFlow",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "Board_DF",
+                                "dependencyConditions": ["Completed"]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "IssueType_DF",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "source1": {},
+                                    "source2": {},
+                                    "sink1": {},
+                                    "sink2": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    },
+                    {
+                        "name": "Priority_DF",
+                        "type": "ExecuteDataFlow",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "IssueStatus_DF",
+                                "dependencyConditions": ["Completed"]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "Priority_DF",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "source1": {},
+                                    "source2": {},
+                                    "sink1": {},
+                                    "sink2": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    },
+                    {
+                        "name": "IssueStatus_DF",
+                        "type": "ExecuteDataFlow",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "IssueType_DF",
+                                "dependencyConditions": ["Completed"]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "IssueStatus_DF",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "source1": {},
+                                    "source2": {},
+                                    "sink1": {},
+                                    "sink2": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    },
+                    {
+                        "name": "Lookup_BoardIds",
+                        "type": "Lookup",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "Priority_DF",
+                                "dependencyConditions": ["Completed"]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "select board_id_PK as boardId from board_dim",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "Board_Dim",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            },
+                            "firstRowOnly": false
+                        }
+                    },
+                    {
+                        "name": "ForEach_BoardId",
+                        "type": "ForEach",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "Lookup_BoardIds",
+                                "dependencyConditions": ["Completed"]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "items": {
+                                "value": "@activity('Lookup_BoardIds').output.value",
+                                "type": "Expression"
+                            },
+                            "isSequential": true,
+                            "activities": [
+                                {
+                                    "name": "Sprint_DF",
+                                    "type": "ExecuteDataFlow",
+                                    "dependsOn": [
+                                        {
+                                            "activity": "Project_DF",
+                                            "dependencyConditions": ["Completed"]
+                                        }
+                                    ],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "dataflow": {
+                                            "referenceName": "Sprint_DF",
+                                            "type": "DataFlowReference",
+                                            "parameters": {
+                                                "boardId": {
+                                                    "value": "@item().boardId",
+                                                    "type": "Expression"
+                                                }
+                                            },
+                                            "datasetParameters": {
+                                                "source1": {
+                                                    "boardId": {
+                                                        "value": "@item().boardId",
+                                                        "type": "Expression"
+                                                    }
+                                                },
+                                                "source2": {},
+                                                "SprintFinal": {},
+                                                "sink1": {}
+                                            }
+                                        },
+                                        "staging": {},
+                                        "compute": {
+                                            "coreCount": 8,
+                                            "computeType": "General"
+                                        },
+                                        "traceLevel": "Fine"
+                                    }
+                                },
+                                {
+                                    "name": "Project_DF",
+                                    "type": "ExecuteDataFlow",
+                                    "dependsOn": [
+                                        {
+                                            "activity": "Issue_IDs_DF",
+                                            "dependencyConditions": ["Completed"]
+                                        }
+                                    ],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "dataflow": {
+                                            "referenceName": "Project_DF",
+                                            "type": "DataFlowReference",
+                                            "parameters": {
+                                                "boardId": {
+                                                    "value": "@item().boardId",
+                                                    "type": "Expression"
+                                                }
+                                            },
+                                            "datasetParameters": {
+                                                "ExtractProjectFromAPI": {
+                                                    "boardId": "@item().boardId"
+                                                },
+                                                "source1": {},
+                                                "sink2": {},
+                                                "sink3": {}
+                                            }
+                                        },
+                                        "staging": {},
+                                        "compute": {
+                                            "coreCount": 8,
+                                            "computeType": "General"
+                                        },
+                                        "traceLevel": "Fine"
+                                    }
+                                },
+                                {
+                                    "name": "Issue_IDs_DF",
+                                    "type": "ExecuteDataFlow",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "dataflow": {
+                                            "referenceName": "Issue_IDs_DF",
+                                            "type": "DataFlowReference",
+                                            "parameters": {
+                                                "boardId": {
+                                                    "value": "@item().boardId",
+                                                    "type": "Expression"
+                                                }
+                                            },
+                                            "datasetParameters": {
+                                                "extractIssueData": {
+                                                    "boardId": "@item().boardId"
+                                                },
+                                                "source1": {},
+                                                "sink1": {}
+                                            }
+                                        },
+                                        "staging": {},
+                                        "compute": {
+                                            "coreCount": 8,
+                                            "computeType": "General"
+                                        },
+                                        "traceLevel": "Fine"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Lookup_Issue_Ids",
+                        "type": "Lookup",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "ForEach_BoardId",
+                                "dependencyConditions": ["Completed"]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "select issue_id_PK as id from issue_dim",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "Issue_Dim",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            },
+                            "firstRowOnly": false
+                        }
+                    },
+                    {
+                        "name": "ForEach_IssueId",
+                        "type": "ForEach",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "Lookup_Issue_Ids",
+                                "dependencyConditions": ["Completed"]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "items": {
+                                "value": "@activity('Lookup_Issue_Ids').output.value",
+                                "type": "Expression"
+                            },
+                            "isSequential": true,
+                            "activities": [
+                                {
+                                    "name": "Issue_DF",
+                                    "type": "ExecuteDataFlow",
+                                    "state": "Inactive",
+                                    "onInactiveMarkAs": "Succeeded",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "dataflow": {
+                                            "referenceName": "Issue_DF",
+                                            "type": "DataFlowReference",
+                                            "parameters": {
+                                                "id": {
+                                                    "value": "@item().id",
+                                                    "type": "Expression"
+                                                }
+                                            },
+                                            "datasetParameters": {
+                                                "source1": {
+                                                    "id": {
+                                                        "value": "@item().id",
+                                                        "type": "Expression"
+                                                    }
+                                                },
+                                                "source2": {},
+                                                "sink2": {}
+                                            }
+                                        },
+                                        "staging": {},
+                                        "compute": {
+                                            "coreCount": 8,
+                                            "computeType": "General"
+                                        },
+                                        "traceLevel": "Fine"
+                                    }
+                                },
+                                {
+                                    "name": "Worklog_DF",
+                                    "type": "ExecuteDataFlow",
+                                    "dependsOn": [
+                                        {
+                                            "activity": "Issue_DF",
+                                            "dependencyConditions": ["Completed"]
+                                        }
+                                    ],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "dataflow": {
+                                            "referenceName": "Worklog_DF",
+                                            "type": "DataFlowReference",
+                                            "parameters": {
+                                                "id": {
+                                                    "value": "@item().id",
+                                                    "type": "Expression"
+                                                }
+                                            },
+                                            "datasetParameters": {
+                                                "source1": {
+                                                    "id": {
+                                                        "value": "@item().id",
+                                                        "type": "Expression"
+                                                    }
+                                                },
+                                                "source2": {},
+                                                "sink2": {},
+                                                "sink3": {}
+                                            }
+                                        },
+                                        "staging": {},
+                                        "compute": {
+                                            "coreCount": 8,
+                                            "computeType": "General"
+                                        },
+                                        "traceLevel": "Fine"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "annotations": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]",
+                "[concat(variables('factoryId'), '/linkedServices/JiraBaseAPI')]",
+                "[resourceId('Microsoft.DataFactory/factories', parameters('factoryName'))]"
+            ]
+        }
+    ]
+}
