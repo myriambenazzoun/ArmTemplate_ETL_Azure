@@ -20,9 +20,7 @@
         "sqlAdminPassword": {
             "value": "<secure-password-placeholder>" // Replace with actual password or Key Vault reference
         },
-        "vulnerabilityAssessments_Default_storageContainerPath": {
-            "value": "<secure-storage-container-path-placeholder>" // Replace with actual storage container path or Key Vault reference
-        },
+        
         "JiraBaseAPI_password": {
             "value": "<secure-jira-api-password-placeholder>" // Replace with actual password or Key Vault reference
         },
