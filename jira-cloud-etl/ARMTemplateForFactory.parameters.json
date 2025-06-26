@@ -1,0 +1,51 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "resourceGroupName": {
+            "value": "jiraCloudResourceGroup"
+        },
+        "factoryName": {
+            "value": "jiraCloudEtl"
+        },
+        "sqlServerName": {
+            "value": "jiracloudsqlserver"
+        },
+        "sqlDatabaseName": {
+            "value": "JIRA_DB"
+        },
+        "sqlAdminLogin": {
+            "value": "JiraCloudServer"
+        },
+        "sqlAdminPassword": {
+            "value": "<secure-password-placeholder>" // Replace with actual password or Key Vault reference
+        },
+        "vulnerabilityAssessments_Default_storageContainerPath": {
+            "value": "<secure-storage-container-path-placeholder>" // Replace with actual storage container path or Key Vault reference
+        },
+        "JiraBaseAPI_password": {
+            "value": "<secure-jira-api-password-placeholder>" // Replace with actual password or Key Vault reference
+        },
+        "JiraBaseAPI_properties_typeProperties_url": {
+            "value": "https://spectrumgroupe-team-dlggvk9h.atlassian.net/"
+        },
+        "JiraBaseAPI_properties_typeProperties_userName": {
+            "value": "myriam.benazzoun@spectrumgroupe.fr"
+        },
+        "schemaName": {
+            "value": "dbo"
+        },
+        "boardApiEndpoint": {
+            "value": "/rest/agile/1.0/board"
+        },
+        "sprintApiEndpoint": {
+            "value": "/rest/agile/1.0/board/@{dataset().boardId}/sprint"
+        },
+        "issueApiEndpoint": {
+            "value": "/rest/agile/1.0/board/@{dataset().boardId}/issue"
+        },
+        "location": {
+            "value": "southafricanorth"
+        }
+    }
+}
