@@ -48,21 +48,7 @@
             "defaultValue": "dbo",
             "metadata": "Database schema name"
         },
-        "boardApiEndpoint": {
-            "type": "string",
-            "defaultValue": "/rest/agile/1.0/board",
-            "metadata": "Jira Board API endpoint"
-        },
-        "sprintApiEndpoint": {
-            "type": "string",
-            "defaultValue": "[concat(parameters('JiraBaseAPI_properties_typeProperties_url'), '/rest/agile/1.0/board/@{dataset().boardId}/sprint')]",
-            "metadata": "Jira Sprint API endpoint"
-        },
-        "issueApiEndpoint": {
-            "type": "string",
-            "defaultValue": "[concat(parameters('JiraBaseAPI_properties_typeProperties_url'), '/rest/agile/1.0/board/@{dataset().boardId}/issue')]",
-            "metadata": "Jira Issue API endpoint"
-        },
+        
         "location": {
             "type": "string",
             "defaultValue": "southafricanorth",
@@ -345,20 +331,7 @@
                 "state": "Disabled"
             }
         },
-        {
-            "type": "Microsoft.Sql/servers/databases/vulnerabilityAssessments",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('sqlServerName'), '/master/Default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
-            ],
-            "properties": {
-                "recurringScans": {
-                    "isEnabled": false,
-                    "emailSubscriptionAdmins": true
-                }
-            }
-        },
+       
         {
             "type": "Microsoft.Sql/servers/devOpsAuditingSettings",
             "apiVersion": "2024-05-01-preview",
@@ -604,20 +577,7 @@
                 "state": "Enabled"
             }
         },
-        {
-            "type": "Microsoft.Sql/servers/databases/vulnerabilityAssessments",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('sqlServerName'), '/', parameters('sqlDatabaseName'), '/Default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('sqlServerName'), parameters('sqlDatabaseName'))]"
-            ],
-            "properties": {
-                "recurringScans": {
-                    "isEnabled": false,
-                    "emailSubscriptionAdmins": true
-                }
-            }
-        },
+        
         {
             "name": "[concat(parameters('factoryName'), '/ETL_Pipeline')]",
             "type": "Microsoft.DataFactory/factories/triggers",
