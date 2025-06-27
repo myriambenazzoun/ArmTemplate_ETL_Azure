@@ -106,12 +106,7 @@
 
         },
 
-         "groupName": {
-            "type": "securestring",
-            "value": "[parameters('groupName')]"
-
-        }
-
+       
 
 
     }
