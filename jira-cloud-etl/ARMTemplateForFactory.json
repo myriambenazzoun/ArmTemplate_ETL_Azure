@@ -2,6 +2,9 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+
+
+
         "sqlServerName": {
             "type": "string",
             "metadata": {
@@ -25,17 +28,33 @@
             "metadata": {
                 "description": "The administrator password for the SQL server."
             }
+        },
+        "groupName": {
+            "type": "string",
+             "metadata": {
+                "description": "the ressource grp name"
+            }
         }
     },
     "functions": [],
     "variables": {},
     "resources": [
        
+{
+            "name": "[parameters('groupName')]",
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2024-08-01",
+            "location": "eastus",
+            "dependsOn": [],
+            "tags": {}
+        },
+
+       
        {
             "type": "Microsoft.Sql/servers",
             "apiVersion": "2021-02-01-preview",
             "name": "[parameters('sqlServerName')]",
-            "location": "France South",
+            "location": "eastus",
             "properties": {
                 "administratorLogin":  "[parameters('sqlAdmin')]",
                 "administratorLoginPassword":  "[parameters('sqlAdminPassword')]"
@@ -52,7 +71,7 @@
             "type": "Microsoft.Sql/servers/databases",
             "apiVersion": "2021-02-01-preview",
             "name": "[concat(parameters('sqlServerName'), '/', parameters('databaseName'))]",
-            "location": "France South",
+            "location": "eastus",
             "properties": {
                 "collation": "SQL_Latin1_General_CP1_CI_AS",
                 "maxSizeBytes": "2147483648", // 2 GB
@@ -63,6 +82,7 @@
                 "tier": "Standard"
             }
         }
+        
     ],
     "outputs": {
 
@@ -83,6 +103,12 @@
     "sqlAdminPassword": {
             "type": "securestring",
             "value": "[parameters('sqlAdminPassword')]"
+
+        },
+
+         "groupName": {
+            "type": "securestring",
+            "value": "[parameters('groupName')]"
 
         }
 
