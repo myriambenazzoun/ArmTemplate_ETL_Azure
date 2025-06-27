@@ -16,11 +16,24 @@
                 "description": "Name of the Azure SQL Database."
             }
         },
+        "administratorLogin": {
+            "defaultValue": "JiraCloudServer",
+            "type": "String",
+            "metadata": {
+                "description": "Admin login username for the SQL Server."
+            }
+        },
+        "administratorLoginPassword": {
+            "type": "SecureString",
+            "metadata": {
+                "description": "Admin login password for the SQL Server."
+            }
+        },
         "subscriptionId": {
             "defaultValue": "your-subscription-id",
             "type": "String",
             "metadata": {
-                "description": "Subscription ID for auditing settings."
+                "description": "Subscription ID for future auditing settings."
             }
         }
     },
@@ -33,7 +46,8 @@
             "location": "southafricanorth",
             "kind": "v12.0",
             "properties": {
-                "administratorLogin": "JiraCloudServer",
+                "administratorLogin": "[parameters('administratorLogin')]",
+                "administratorLoginPassword": "[parameters('administratorLoginPassword')]",
                 "version": "12.0",
                 "minimalTlsVersion": "1.2",
                 "publicNetworkAccess": "Enabled",
