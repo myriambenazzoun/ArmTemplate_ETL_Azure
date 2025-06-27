@@ -1,13 +1,27 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/ARMTemplateForFactory.json#",
-  "contentVersion": "1.0.0.0",
+    "contentVersion": "1.0.0.0",
     "parameters": {
-        "vulnerabilityAssessments_Default_storageContainerPath": {
-            "type": "SecureString"
-        },
         "servers_jiracloudsqlserver_name": {
             "defaultValue": "jiracloudsqlserver",
-            "type": "String"
+            "type": "String",
+            "metadata": {
+                "description": "Name of the Azure SQL Server."
+            }
+        },
+        "database_name": {
+            "defaultValue": "JIRA_DB",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the Azure SQL Database."
+            }
+        },
+        "subscriptionId": {
+            "defaultValue": "your-subscription-id",
+            "type": "String",
+            "metadata": {
+                "description": "Subscription ID for auditing settings."
+            }
         }
     },
     "variables": {},
@@ -27,116 +41,9 @@
             }
         },
         {
-            "type": "Microsoft.Sql/servers/advancedThreatProtectionSettings",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/Default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "state": "Disabled"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/advisors",
-            "apiVersion": "2014-04-01",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/CreateIndex')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "autoExecuteValue": "Disabled"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/advisors",
-            "apiVersion": "2014-04-01",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/DbParameterization')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "autoExecuteValue": "Disabled"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/advisors",
-            "apiVersion": "2014-04-01",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/DefragmentIndex')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "autoExecuteValue": "Disabled"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/advisors",
-            "apiVersion": "2014-04-01",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/DropIndex')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "autoExecuteValue": "Disabled"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/advisors",
-            "apiVersion": "2014-04-01",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/ForceLastGoodPlan')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "autoExecuteValue": "Enabled"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/auditingPolicies",
-            "apiVersion": "2014-04-01",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/Default')]",
-            "location": "South Africa North",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "auditingState": "Disabled"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/auditingSettings",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/Default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "retentionDays": 0,
-                "auditActionsAndGroups": [],
-                "isStorageSecondaryKeyInUse": false,
-                "isAzureMonitorTargetEnabled": false,
-                "isManagedIdentityInUse": false,
-                "state": "Disabled",
-                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/connectionPolicies",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/default')]",
-            "location": "southafricanorth",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "connectionType": "Default"
-            }
-        },
-        {
             "type": "Microsoft.Sql/servers/databases",
             "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/JIRA_DB')]",
+            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/', parameters('database_name'))]",
             "location": "southafricanorth",
             "dependsOn": [
                 "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
@@ -160,166 +67,6 @@
                 "maintenanceConfigurationId": "/subscriptions/897dd209-8969-4ede-98b0-f00cc90f4da8/providers/Microsoft.Maintenance/publicMaintenanceConfigurations/SQL_Default",
                 "isLedgerOn": false,
                 "availabilityZone": "NoPreference"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/databases/advancedThreatProtectionSettings",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/master/Default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "state": "Disabled"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/databases/auditingPolicies",
-            "apiVersion": "2014-04-01",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/master/Default')]",
-            "location": "South Africa North",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "auditingState": "Disabled"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/databases/auditingSettings",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/master/Default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "retentionDays": 0,
-                "isAzureMonitorTargetEnabled": false,
-                "state": "Disabled",
-                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/databases/extendedAuditingSettings",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/master/Default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "retentionDays": 0,
-                "isAzureMonitorTargetEnabled": false,
-                "state": "Disabled",
-                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/databases/geoBackupPolicies",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/master/Default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "state": "Disabled"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/databases/ledgerDigestUploads",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/master/Current')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {}
-        },
-        {
-            "type": "Microsoft.Sql/servers/databases/securityAlertPolicies",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/master/Default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "state": "Disabled",
-                "disabledAlerts": [
-                    ""
-                ],
-                "emailAddresses": [
-                    ""
-                ],
-                "emailAccountAdmins": false,
-                "retentionDays": 0
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/master/Current')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "state": "Disabled"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/databases/vulnerabilityAssessments",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/master/Default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "recurringScans": {
-                    "isEnabled": false,
-                    "emailSubscriptionAdmins": true
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/devOpsAuditingSettings",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/Default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "isAzureMonitorTargetEnabled": false,
-                "isManagedIdentityInUse": false,
-                "state": "Disabled",
-                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/encryptionProtector",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/current')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "kind": "servicemanaged",
-            "properties": {
-                "serverKeyName": "ServiceManaged",
-                "serverKeyType": "ServiceManaged",
-                "autoRotationEnabled": false
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/extendedAuditingSettings",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/Default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "retentionDays": 0,
-                "auditActionsAndGroups": [],
-                "isStorageSecondaryKeyInUse": false,
-                "isAzureMonitorTargetEnabled": false,
-                "isManagedIdentityInUse": false,
-                "state": "Disabled",
-                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
             }
         },
         {
@@ -347,123 +94,23 @@
             }
         },
         {
-            "type": "Microsoft.Sql/servers/keys",
+            "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
             "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/ServiceManaged')]",
+            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/', parameters('database_name'), '/Current')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "kind": "servicemanaged",
-            "properties": {
-                "serverKeyType": "ServiceManaged"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/securityAlertPolicies",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/Default')]",
-            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_jiracloudsqlserver_name'), parameters('database_name'))]",
                 "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
             ],
             "properties": {
-                "state": "Disabled",
-                "disabledAlerts": [
-                    ""
-                ],
-                "emailAddresses": [
-                    ""
-                ],
-                "emailAccountAdmins": false,
-                "retentionDays": 0
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/sqlVulnerabilityAssessments",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/Default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "state": "Disabled"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/vulnerabilityAssessments",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/Default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "recurringScans": {
-                    "isEnabled": false,
-                    "emailSubscriptionAdmins": true
-                },
-                "storageContainerPath": "[parameters('vulnerabilityAssessments_Default_storageContainerPath')]"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/databases/advancedThreatProtectionSettings",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/JIRA_DB/Default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_jiracloudsqlserver_name'), 'JIRA_DB')]",
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "state": "Disabled"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/databases/auditingPolicies",
-            "apiVersion": "2014-04-01",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/JIRA_DB/Default')]",
-            "location": "South Africa North",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_jiracloudsqlserver_name'), 'JIRA_DB')]",
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "auditingState": "Disabled"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/databases/auditingSettings",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/JIRA_DB/Default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_jiracloudsqlserver_name'), 'JIRA_DB')]",
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "retentionDays": 0,
-                "isAzureMonitorTargetEnabled": false,
-                "state": "Disabled",
-                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/databases/backupLongTermRetentionPolicies",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/JIRA_DB/default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_jiracloudsqlserver_name'), 'JIRA_DB')]",
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "weeklyRetention": "PT0S",
-                "monthlyRetention": "PT0S",
-                "yearlyRetention": "PT0S",
-                "weekOfYear": 0
+                "state": "Enabled"
             }
         },
         {
             "type": "Microsoft.Sql/servers/databases/backupShortTermRetentionPolicies",
             "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/JIRA_DB/default')]",
+            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/', parameters('database_name'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_jiracloudsqlserver_name'), 'JIRA_DB')]",
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_jiracloudsqlserver_name'), parameters('database_name'))]",
                 "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
             ],
             "properties": {
@@ -472,87 +119,15 @@
             }
         },
         {
-            "type": "Microsoft.Sql/servers/databases/extendedAuditingSettings",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/JIRA_DB/Default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_jiracloudsqlserver_name'), 'JIRA_DB')]",
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "retentionDays": 0,
-                "isAzureMonitorTargetEnabled": false,
-                "state": "Disabled",
-                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
-            }
-        },
-        {
             "type": "Microsoft.Sql/servers/databases/geoBackupPolicies",
             "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/JIRA_DB/Default')]",
+            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/', parameters('database_name'), '/Default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_jiracloudsqlserver_name'), 'JIRA_DB')]",
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_jiracloudsqlserver_name'), parameters('database_name'))]",
                 "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
             ],
             "properties": {
                 "state": "Enabled"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/databases/ledgerDigestUploads",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/JIRA_DB/Current')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_jiracloudsqlserver_name'), 'JIRA_DB')]",
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {}
-        },
-        {
-            "type": "Microsoft.Sql/servers/databases/securityAlertPolicies",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/JIRA_DB/Default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_jiracloudsqlserver_name'), 'JIRA_DB')]",
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "state": "Disabled",
-                "disabledAlerts": [
-                    ""
-                ],
-                "emailAddresses": [
-                    ""
-                ],
-                "emailAccountAdmins": false,
-                "retentionDays": 0
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/JIRA_DB/Current')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_jiracloudsqlserver_name'), 'JIRA_DB')]",
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "state": "Enabled"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/databases/vulnerabilityAssessments",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/JIRA_DB/Default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_jiracloudsqlserver_name'), 'JIRA_DB')]",
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "recurringScans": {
-                    "isEnabled": false,
-                    "emailSubscriptionAdmins": true
-                }
             }
         }
     ]
