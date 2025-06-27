@@ -2,35 +2,11 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-         "vulnerabilityAssessments_Default_storageContainerPath": {
+        "vulnerabilityAssessments_Default_storageContainerPath": {
             "value": null
         },
         "servers_jiracloudsqlserver_name": {
             "value": null
-        },
-        "factoryName": {
-            "value": ""
-        },
-        "JiraBaseAPI_password": {
-            "value": ""
-        },
-        "Jira_DB_password": {
-            "value": ""
-        },
-        "JiraBaseAPI_properties_typeProperties_url": {
-            "value": ""
-        },
-        "JiraBaseAPI_properties_typeProperties_userName": {
-            "value": ""
-        },
-        "Jira_DB_properties_typeProperties_server": {
-            "value": ""
-        },
-        "Jira_DB_properties_typeProperties_database": {
-            "value": ""
-        },
-        "Jira_DB_properties_typeProperties_userName": {
-            "value": ""
         }
     }
 }
