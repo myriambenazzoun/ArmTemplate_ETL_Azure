@@ -37,7 +37,9 @@
             }
         }
     },
-    "variables": {},
+    "variables": {
+    "maintenanceConfigurationId": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Maintenance/publicMaintenanceConfigurations/SQL_Default')]"
+},
     "resources": [
         {
             "type": "Microsoft.Sql/servers",
@@ -78,7 +80,9 @@
                 "autoPauseDelay": 60,
                 "requestedBackupStorageRedundancy": "Geo",
                 "minCapacity": 0.5,
-                "maintenanceConfigurationId": "/subscriptions/897dd209-8969-4ede-98b0-f00cc90f4da8/providers/Microsoft.Maintenance/publicMaintenanceConfigurations/SQL_Default",
+                "maintenanceConfigurationId":"[variables('maintenanceConfigurationId')]",
+                
+                
                 "isLedgerOn": false,
                 "availabilityZone": "NoPreference"
             }
