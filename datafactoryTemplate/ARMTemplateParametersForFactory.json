@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "factoryName": {
-            "value": "jiraCloudEtl"
+            "value": ""
         },
         "JiraBaseAPI_password": {
             "value": ""
@@ -12,19 +12,19 @@
             "value": ""
         },
         "JiraBaseAPI_properties_typeProperties_url": {
-            "value": "https://spectrumgroupe-team-dlggvk9h.atlassian.net/"
+            "value": ""
         },
         "JiraBaseAPI_properties_typeProperties_userName": {
-            "value": "myriam.benazzoun@spectrumgroupe.fr"
+            "value": ""
         },
         "Jira_DB_properties_typeProperties_server": {
-            "value": "jiracloudsqlserver.database.windows.net"
+            "value": ""
         },
         "Jira_DB_properties_typeProperties_database": {
-            "value": "JIRA_DB"
+            "value": ""
         },
         "Jira_DB_properties_typeProperties_userName": {
-            "value": "JiraCloudServer"
+            "value": ""
         }
     }
 }
