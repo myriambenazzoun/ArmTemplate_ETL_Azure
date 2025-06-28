@@ -111,18 +111,7 @@
                 "endIpAddress": "197.15.250.2"
             }
         },
-        {
-            "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/', parameters('database_name'), '/Current')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_jiracloudsqlserver_name'), parameters('database_name'))]",
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "state": "Enabled"
-            }
-        },
+      
         {
             "type": "Microsoft.Sql/servers/databases/backupShortTermRetentionPolicies",
             "apiVersion": "2024-05-01-preview",
