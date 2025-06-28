@@ -4,8 +4,7 @@
     "parameters": {
         "factoryName": {
             "type": "string",
-            "metadata": "Nom de fabrique de données",
-            "defaultValue": "jiraCloudEtl"
+            "metadata": "Nom de fabrique de données"
         },
         "JiraBaseAPI_password": {
             "type": "secureString",
@@ -16,24 +15,19 @@
             "metadata": "Chaîne sécurisée pour « password » de « Jira_DB »"
         },
         "JiraBaseAPI_properties_typeProperties_url": {
-            "type": "string",
-            "defaultValue": "https://spectrumgroupe-team-dlggvk9h.atlassian.net/"
+            "type": "string"
         },
         "JiraBaseAPI_properties_typeProperties_userName": {
-            "type": "string",
-            "defaultValue": "myriam.benazzoun@spectrumgroupe.fr"
+            "type": "string"
         },
         "Jira_DB_properties_typeProperties_server": {
-            "type": "string",
-            "defaultValue": "jiracloudsqlserver.database.windows.net"
+            "type": "string"
         },
         "Jira_DB_properties_typeProperties_database": {
-            "type": "string",
-            "defaultValue": "JIRA_DB"
+            "type": "string"
         },
         "Jira_DB_properties_typeProperties_userName": {
-            "type": "string",
-            "defaultValue": "JiraCloudServer"
+            "type": "string"
         }
     },
     "variables": {
@@ -92,7 +86,7 @@
             "dependsOn": []
         },
         {
-            "name": "[concat(parameters('factoryName'), '/Jira_DB')]",
+            "name": "[concat(parameters('factoryName'),'/', parameters('Jira_DB_properties_typeProperties_database'))]",
             "type": "Microsoft.DataFactory/factories/linkedServices",
             "apiVersion": "2018-06-01",
             "properties": {
