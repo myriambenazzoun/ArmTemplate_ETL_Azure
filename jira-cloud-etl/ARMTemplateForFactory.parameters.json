@@ -20,6 +20,9 @@
         "administratorLoginPassword": {
              "value": null
         },
+         "factoryName": {
+            "value": ""
+        }
        
     }
 }
