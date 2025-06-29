@@ -35,6 +35,9 @@
             "metadata": {
                 "description": "Subscription ID for future auditing settings."
             }
+        }, "factoryName": {
+            "type": "string",
+            "metadata": "Nom de fabrique de données"
         }
     },
     "variables": {
