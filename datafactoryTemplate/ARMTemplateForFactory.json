@@ -1195,7 +1195,7 @@
             "apiVersion": "2018-06-01",
             "properties": {
                 "linkedServiceName": {
-                    "referenceName": "Jira_DB",
+                    "referenceName": "[parameters('Jira_DB_properties_typeProperties_database')]",
                     "type": "LinkedServiceReference"
                 },
                 "folder": {
@@ -1253,7 +1253,7 @@
             "apiVersion": "2018-06-01",
             "properties": {
                 "linkedServiceName": {
-                    "referenceName": "Jira_DB",
+                    "referenceName": "[parameters('Jira_DB_properties_typeProperties_database')]",
                     "type": "LinkedServiceReference"
                 },
                 "folder": {
@@ -1291,7 +1291,7 @@
             "apiVersion": "2018-06-01",
             "properties": {
                 "linkedServiceName": {
-                    "referenceName": "Jira_DB",
+                    "referenceName": "[parameters('Jira_DB_properties_typeProperties_database')]",
                     "type": "LinkedServiceReference"
                 },
                 "folder": {
@@ -1325,7 +1325,7 @@
             "apiVersion": "2018-06-01",
             "properties": {
                 "linkedServiceName": {
-                    "referenceName": "Jira_DB",
+                    "referenceName": "[parameters('Jira_DB_properties_typeProperties_database')]",
                     "type": "LinkedServiceReference"
                 },
                 "folder": {
@@ -1387,7 +1387,7 @@
             "apiVersion": "2018-06-01",
             "properties": {
                 "linkedServiceName": {
-                    "referenceName": "Jira_DB",
+                    "referenceName": "[parameters('Jira_DB_properties_typeProperties_database')]",
                     "type": "LinkedServiceReference"
                 },
                 "folder": {
@@ -1459,7 +1459,7 @@
             "apiVersion": "2018-06-01",
             "properties": {
                 "linkedServiceName": {
-                    "referenceName": "Jira_DB",
+                    "referenceName": "[parameters('Jira_DB_properties_typeProperties_database')]",
                     "type": "LinkedServiceReference"
                 },
                 "folder": {
@@ -1540,7 +1540,7 @@
             "apiVersion": "2018-06-01",
             "properties": {
                 "linkedServiceName": {
-                    "referenceName": "Jira_DB",
+                    "referenceName": "[parameters('Jira_DB_properties_typeProperties_database')]",
                     "type": "LinkedServiceReference"
                 },
                 "folder": {
@@ -1590,7 +1590,7 @@
             "apiVersion": "2018-06-01",
             "properties": {
                 "linkedServiceName": {
-                    "referenceName": "Jira_DB",
+                    "referenceName": "[parameters('Jira_DB_properties_typeProperties_database')]",
                     "type": "LinkedServiceReference"
                 },
                 "folder": {
@@ -1659,7 +1659,7 @@
             "apiVersion": "2018-06-01",
             "properties": {
                 "linkedServiceName": {
-                    "referenceName": "Jira_DB",
+                    "referenceName": "[parameters('Jira_DB_properties_typeProperties_database')]",
                     "type": "LinkedServiceReference"
                 },
                 "folder": {
@@ -1741,7 +1741,7 @@
             "apiVersion": "2018-06-01",
             "properties": {
                 "linkedServiceName": {
-                    "referenceName": "Jira_DB",
+                    "referenceName": "[parameters('Jira_DB_properties_typeProperties_database')]",
                     "type": "LinkedServiceReference"
                 },
                 "folder": {
@@ -1779,7 +1779,7 @@
             "apiVersion": "2018-06-01",
             "properties": {
                 "linkedServiceName": {
-                    "referenceName": "Jira_DB",
+                    "referenceName": "[parameters('Jira_DB_properties_typeProperties_database')]",
                     "type": "LinkedServiceReference"
                 },
                 "folder": {
@@ -1822,7 +1822,7 @@
             "apiVersion": "2018-06-01",
             "properties": {
                 "linkedServiceName": {
-                    "referenceName": "Jira_DB",
+                    "referenceName": "[parameters('Jira_DB_properties_typeProperties_database')]",
                     "type": "LinkedServiceReference"
                 },
                 "folder": {
@@ -2015,7 +2015,7 @@
             "apiVersion": "2018-06-01",
             "properties": {
                 "linkedServiceName": {
-                    "referenceName": "Jira_DB",
+                    "referenceName": "[parameters('Jira_DB_properties_typeProperties_database')]",
                     "type": "LinkedServiceReference"
                 },
                 "folder": {
@@ -2057,7 +2057,7 @@
             "apiVersion": "2018-06-01",
             "properties": {
                 "linkedServiceName": {
-                    "referenceName": "Jira_DB",
+                    "referenceName": "[parameters('Jira_DB_properties_typeProperties_database')]",
                     "type": "LinkedServiceReference"
                 },
                 "folder": {
