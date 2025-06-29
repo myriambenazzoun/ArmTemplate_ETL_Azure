@@ -1244,7 +1244,7 @@
                 }
             },
             "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]"
+                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
             ]
         },
         {
@@ -1282,7 +1282,7 @@
                 }
             },
             "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]"
+                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
             ]
         },
         {
@@ -1316,7 +1316,7 @@
                 }
             },
             "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]"
+                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
             ]
         },
         {
@@ -1377,8 +1377,8 @@
                     "table": "Issue_dim"
                 }
             },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]"
+           "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
             ]
         },
         {
@@ -1427,7 +1427,7 @@
                 }
             },
             "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]"
+                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
             ]
         },
         {
@@ -1498,8 +1498,8 @@
                     "table": "worklog_fact"
                 }
             },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]"
+           "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
             ]
         },
         {
@@ -1581,7 +1581,7 @@
                 }
             },
             "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]"
+                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
             ]
         },
         {
@@ -1649,8 +1649,8 @@
                     "table": "issue_fact"
                 }
             },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]"
+             "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
             ]
         },
         {
@@ -1699,8 +1699,8 @@
                     "table": "sprint_dim"
                 }
             },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]"
+           "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
             ]
         },
         {
@@ -1769,8 +1769,8 @@
                     "table": "issueStatus_dim"
                 }
             },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]"
+          "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
             ]
         },
         {
@@ -1812,8 +1812,8 @@
                     "table": "worklog_dim"
                 }
             },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]"
+           "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
             ]
         },
         {
@@ -1855,8 +1855,8 @@
                     "table": "IssueType_dim"
                 }
             },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]"
+          "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
             ]
         },
         {
@@ -2048,7 +2048,7 @@
                 }
             },
             "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]"
+                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
             ]
         },
         {
@@ -2085,7 +2085,7 @@
                 }
             },
             "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/Jira_DB')]"
+                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
             ]
         },
         {
