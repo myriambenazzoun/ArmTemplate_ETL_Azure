@@ -35,18 +35,15 @@
     },
     "resources": [
 
-{
-  "type": "Microsoft.DataFactory/factories",
-  "apiVersion": "2018-06-01",
-  "name": "[parameters('factoryName')]",
-  "location": "[resourceGroup().location]",
-  "identity": {
-    "type": "SystemAssigned"
-  }
-},
-
-
-        
+        {
+            "type": "Microsoft.DataFactory/factories",
+            "apiVersion": "2018-06-01",
+            "name": "[parameters('factoryName')]",
+            "location": "[resourceGroup().location]",
+            "identity": {
+            "type": "SystemAssigned"
+              }
+        },
         {
             "name": "[concat(parameters('factoryName'), '/ETL_Pipeline')]",
             "type": "Microsoft.DataFactory/factories/triggers",
