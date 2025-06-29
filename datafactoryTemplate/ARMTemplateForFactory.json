@@ -1244,7 +1244,7 @@
                 }
             },
             "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
+                 "[resourceId('Microsoft.DataFactory/factories/linkedServices', parameters('factoryName'), parameters('Jira_DB_properties_typeProperties_database'))]"
             ]
         },
         {
@@ -1282,7 +1282,7 @@
                 }
             },
             "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
+                 "[resourceId('Microsoft.DataFactory/factories/linkedServices', parameters('factoryName'), parameters('Jira_DB_properties_typeProperties_database'))]"
             ]
         },
         {
@@ -1316,7 +1316,7 @@
                 }
             },
             "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
+                 "[resourceId('Microsoft.DataFactory/factories/linkedServices', parameters('factoryName'), parameters('Jira_DB_properties_typeProperties_database'))]"
             ]
         },
         {
@@ -1378,7 +1378,7 @@
                 }
             },
            "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
+                 "[resourceId('Microsoft.DataFactory/factories/linkedServices', parameters('factoryName'), parameters('Jira_DB_properties_typeProperties_database'))]"
             ]
         },
         {
@@ -1427,7 +1427,7 @@
                 }
             },
             "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
+                 "[resourceId('Microsoft.DataFactory/factories/linkedServices', parameters('factoryName'), parameters('Jira_DB_properties_typeProperties_database'))]"
             ]
         },
         {
@@ -1499,7 +1499,7 @@
                 }
             },
            "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
+                 "[resourceId('Microsoft.DataFactory/factories/linkedServices', parameters('factoryName'), parameters('Jira_DB_properties_typeProperties_database'))]"
             ]
         },
         {
@@ -1581,7 +1581,7 @@
                 }
             },
             "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
+                 "[resourceId('Microsoft.DataFactory/factories/linkedServices', parameters('factoryName'), parameters('Jira_DB_properties_typeProperties_database'))]"
             ]
         },
         {
@@ -1650,7 +1650,7 @@
                 }
             },
              "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
+                 "[resourceId('Microsoft.DataFactory/factories/linkedServices', parameters('factoryName'), parameters('Jira_DB_properties_typeProperties_database'))]"
             ]
         },
         {
@@ -1700,7 +1700,7 @@
                 }
             },
            "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
+                 "[resourceId('Microsoft.DataFactory/factories/linkedServices', parameters('factoryName'), parameters('Jira_DB_properties_typeProperties_database'))]"
             ]
         },
         {
@@ -1770,7 +1770,7 @@
                 }
             },
           "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
+                 "[resourceId('Microsoft.DataFactory/factories/linkedServices', parameters('factoryName'), parameters('Jira_DB_properties_typeProperties_database'))]"
             ]
         },
         {
@@ -1813,7 +1813,7 @@
                 }
             },
            "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
+                 "[resourceId('Microsoft.DataFactory/factories/linkedServices', parameters('factoryName'), parameters('Jira_DB_properties_typeProperties_database'))]"
             ]
         },
         {
@@ -1856,7 +1856,7 @@
                 }
             },
           "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
+                 "[resourceId('Microsoft.DataFactory/factories/linkedServices', parameters('factoryName'), parameters('Jira_DB_properties_typeProperties_database'))]"
             ]
         },
         {
@@ -2048,7 +2048,7 @@
                 }
             },
             "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
+                 "[resourceId('Microsoft.DataFactory/factories/linkedServices', parameters('factoryName'), parameters('Jira_DB_properties_typeProperties_database'))]"
             ]
         },
         {
@@ -2085,7 +2085,7 @@
                 }
             },
             "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/',[parameters('Jira_DB_properties_typeProperties_database')])]"
+                 "[resourceId('Microsoft.DataFactory/factories/linkedServices', parameters('factoryName'), parameters('Jira_DB_properties_typeProperties_database'))]"
             ]
         },
         {
