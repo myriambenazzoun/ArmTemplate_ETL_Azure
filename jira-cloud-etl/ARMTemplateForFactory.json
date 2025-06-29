@@ -136,6 +136,15 @@
             "properties": {
                 "state": "Enabled"
             }
-        }
+        },
+          {
+            "type": "Microsoft.DataFactory/factories",
+            "apiVersion": "2018-06-01",
+            "name": "[parameters('factoryName')]",
+            "location": "[resourceGroup().location]",
+            "identity": {
+            "type": "SystemAssigned"
+              }
+        },
     ]
 }
