@@ -1,153 +1,151 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/ARMTemplateForFactory.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "servers_jiracloudsqlserver_name": {
-            "defaultValue": "jiracloudsqlserver",
-            "type": "String",
-            "metadata": {
-                "description": "Name of the Azure SQL Server."
-            }
-        },
-        "database_name": {
-            "defaultValue": "JIRA_DB",
-            "type": "String",
-            "metadata": {
-                "description": "Name of the Azure SQL Database."
-            }
-        },
-        "administratorLogin": {
-            "defaultValue": "JiraCloudServer",
-            "type": "String",
-            "metadata": {
-                "description": "Admin login username for the SQL Server."
-            }
-        },
-        "administratorLoginPassword": {
-            "type": "SecureString",
-            "metadata": {
-                "description": "Admin login password for the SQL Server."
-            }
-        },
-        "subscriptionId": {
-            "defaultValue": "your-subscription-id",
-            "type": "String",
-            "metadata": {
-                "description": "Subscription ID for future auditing settings."
-            }
-        }, "factoryName": {
-            "type": "string",
-            "metadata": "Nom de fabrique de données"
-        }
-    },
-    "variables": {
-    "maintenanceConfigurationId": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Maintenance/publicMaintenanceConfigurations/SQL_Default')]"
-},
-    "resources": [
-        {
-            "type": "Microsoft.Sql/servers",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[parameters('servers_jiracloudsqlserver_name')]",
-            "location": "southafricanorth",
-            "kind": "v12.0",
-            "properties": {
-                "administratorLogin": "[parameters('administratorLogin')]",
-                "administratorLoginPassword": "[parameters('administratorLoginPassword')]",
-                "version": "12.0",
-                "minimalTlsVersion": "1.2",
-                "publicNetworkAccess": "Enabled",
-                "restrictOutboundNetworkAccess": "Disabled"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/databases",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/', parameters('database_name'))]",
-            "location": "southafricanorth",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "sku": {
-                "name": "GP_S_Gen5",
-                "tier": "GeneralPurpose",
-                "family": "Gen5",
-                "capacity": 1
-            },
-            "kind": "v12.0,user,vcore,serverless",
-            "properties": {
-                "collation": "SQL_Latin1_General_CP1_CI_AS",
-                "maxSizeBytes": 34359738368,
-                "catalogCollation": "SQL_Latin1_General_CP1_CI_AS",
-                "zoneRedundant": false,
-                "readScale": "Disabled",
-                "autoPauseDelay": 60,
-                "requestedBackupStorageRedundancy": "Geo",
-                "minCapacity": 0.5,
-                "maintenanceConfigurationId":"[variables('maintenanceConfigurationId')]",
-                
-                
-                "isLedgerOn": false,
-                "availabilityZone": "NoPreference"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/firewallRules",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/AllowAllWindowsAzureIps')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "startIpAddress": "0.0.0.0",
-                "endIpAddress": "0.0.0.0"
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/firewallRules",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/ClientIPAddress_2025-6-13_15-51-17')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "startIpAddress": "197.15.250.2",
-                "endIpAddress": "197.15.250.2"
-            }
-        },
-      
-        {
-            "type": "Microsoft.Sql/servers/databases/backupShortTermRetentionPolicies",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/', parameters('database_name'), '/default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_jiracloudsqlserver_name'), parameters('database_name'))]",
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "retentionDays": 7,
-                "diffBackupIntervalInHours": 12
-            }
-        },
-        {
-            "type": "Microsoft.Sql/servers/databases/geoBackupPolicies",
-            "apiVersion": "2024-05-01-preview",
-            "name": "[concat(parameters('servers_jiracloudsqlserver_name'), '/', parameters('database_name'), '/Default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_jiracloudsqlserver_name'), parameters('database_name'))]",
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
-            ],
-            "properties": {
-                "state": "Enabled"
-            }
-        },
-          {
-            "type": "Microsoft.DataFactory/factories",
-            "apiVersion": "2018-06-01",
-            "name": "[parameters('factoryName')]",
-            "location": "[resourceGroup().location]",
-            "identity": {
-            "type": "SystemAssigned"
-              }
-        },
-    ]
+   "$schema":"https://schema.management.azure.com/schemas/2019-04-01/ARMTemplateForFactory.json#",
+   "contentVersion":"1.0.0.0",
+   "parameters":{
+      "servers_jiracloudsqlserver_name":{
+         "defaultValue":"jiracloudsqlserver",
+         "type":"String",
+         "metadata":{
+            "description":"Name of the Azure SQL Server."
+         }
+      },
+      "database_name":{
+         "defaultValue":"JIRA_DB",
+         "type":"String",
+         "metadata":{
+            "description":"Name of the Azure SQL Database."
+         }
+      },
+      "administratorLogin":{
+         "defaultValue":"JiraCloudServer",
+         "type":"String",
+         "metadata":{
+            "description":"Admin login username for the SQL Server."
+         }
+      },
+      "administratorLoginPassword":{
+         "type":"SecureString",
+         "metadata":{
+            "description":"Admin login password for the SQL Server."
+         }
+      },
+      "subscriptionId":{
+         "defaultValue":"your-subscription-id",
+         "type":"String",
+         "metadata":{
+            "description":"Subscription ID for future auditing settings."
+         }
+      },
+      "factoryName":{
+         "type":"string",
+         "metadata":"Nom de fabrique de données"
+      }
+   },
+   "variables":{
+      "maintenanceConfigurationId":"[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Maintenance/publicMaintenanceConfigurations/SQL_Default')]"
+   },
+   "resources":[
+      {
+         "type":"Microsoft.Sql/servers",
+         "apiVersion":"2024-05-01-preview",
+         "name":"[parameters('servers_jiracloudsqlserver_name')]",
+         "location":"southafricanorth",
+         "kind":"v12.0",
+         "properties":{
+            "administratorLogin":"[parameters('administratorLogin')]",
+            "administratorLoginPassword":"[parameters('administratorLoginPassword')]",
+            "version":"12.0",
+            "minimalTlsVersion":"1.2",
+            "publicNetworkAccess":"Enabled",
+            "restrictOutboundNetworkAccess":"Disabled"
+         }
+      },
+      {
+         "type":"Microsoft.Sql/servers/databases",
+         "apiVersion":"2024-05-01-preview",
+         "name":"[concat(parameters('servers_jiracloudsqlserver_name'), '/', parameters('database_name'))]",
+         "location":"southafricanorth",
+         "dependsOn":[
+            "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
+         ],
+         "sku":{
+            "name":"GP_S_Gen5",
+            "tier":"GeneralPurpose",
+            "family":"Gen5",
+            "capacity":1
+         },
+         "kind":"v12.0,user,vcore,serverless",
+         "properties":{
+            "collation":"SQL_Latin1_General_CP1_CI_AS",
+            "maxSizeBytes":34359738368,
+            "catalogCollation":"SQL_Latin1_General_CP1_CI_AS",
+            "zoneRedundant":false,
+            "readScale":"Disabled",
+            "autoPauseDelay":60,
+            "requestedBackupStorageRedundancy":"Geo",
+            "minCapacity":0.5,
+            "maintenanceConfigurationId":"[variables('maintenanceConfigurationId')]",
+            "isLedgerOn":false,
+            "availabilityZone":"NoPreference"
+         }
+      },
+      {
+         "type":"Microsoft.Sql/servers/firewallRules",
+         "apiVersion":"2024-05-01-preview",
+         "name":"[concat(parameters('servers_jiracloudsqlserver_name'), '/AllowAllWindowsAzureIps')]",
+         "dependsOn":[
+            "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
+         ],
+         "properties":{
+            "startIpAddress":"0.0.0.0",
+            "endIpAddress":"0.0.0.0"
+         }
+      },
+      {
+         "type":"Microsoft.Sql/servers/firewallRules",
+         "apiVersion":"2024-05-01-preview",
+         "name":"[concat(parameters('servers_jiracloudsqlserver_name'), '/ClientIPAddress_2025-6-13_15-51-17')]",
+         "dependsOn":[
+            "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
+         ],
+         "properties":{
+            "startIpAddress":"197.15.250.2",
+            "endIpAddress":"197.15.250.2"
+         }
+      },
+      {
+         "type":"Microsoft.Sql/servers/databases/backupShortTermRetentionPolicies",
+         "apiVersion":"2024-05-01-preview",
+         "name":"[concat(parameters('servers_jiracloudsqlserver_name'), '/', parameters('database_name'), '/default')]",
+         "dependsOn":[
+            "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_jiracloudsqlserver_name'), parameters('database_name'))]",
+            "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
+         ],
+         "properties":{
+            "retentionDays":7,
+            "diffBackupIntervalInHours":12
+         }
+      },
+      {
+         "type":"Microsoft.Sql/servers/databases/geoBackupPolicies",
+         "apiVersion":"2024-05-01-preview",
+         "name":"[concat(parameters('servers_jiracloudsqlserver_name'), '/', parameters('database_name'), '/Default')]",
+         "dependsOn":[
+            "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_jiracloudsqlserver_name'), parameters('database_name'))]",
+            "[resourceId('Microsoft.Sql/servers', parameters('servers_jiracloudsqlserver_name'))]"
+         ],
+         "properties":{
+            "state":"Enabled"
+         }
+      },
+      {
+         "type":"Microsoft.DataFactory/factories",
+         "apiVersion":"2018-06-01",
+         "name":"[parameters('factoryName')]",
+         "location":"[resourceGroup().location]",
+         "identity":{
+            "type":"SystemAssigned"
+         }
+      }
+   ]
 }
